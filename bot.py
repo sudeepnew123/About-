@@ -1,11 +1,11 @@
 import os
 from flask import Flask, request
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, Bot
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, Dispatcher
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = os.environ.get("BOT_TOKEN")  # Set your token in Render secret
-PORT = int(os.environ.get("PORT", 8443))  # Render default port
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL")  # Set your Render public URL here
+TOKEN = os.environ.get("BOT_TOKEN")
+PORT = int(os.environ.get("PORT", 8443))
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL")  # https://yourdomain.onrender.com
 
 IMAGE_URL = "https://i.ibb.co/G3nbpR0L/IMG-20250820-221800-029.webp"
 
@@ -61,14 +61,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Flask app
 app = Flask(__name__)
-bot = Bot(TOKEN)
-dispatcher = Dispatcher(bot, None, workers=0)
-dispatcher.add_handler(CommandHandler("start", start))
+application = ApplicationBuilder().token(TOKEN).build()
+application.add_handler(CommandHandler("start", start))
 
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
-    update = Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
+    update = Update.de_json(request.get_json(force=True), application.bot)
+    application.update_queue.put(update)
     return "ok", 200
 
 @app.route("/")
@@ -76,6 +75,5 @@ def index():
     return "Bot is running!", 200
 
 if __name__ == "__main__":
-    # Set webhook on start
-    bot.set_webhook(url=f"{WEBHOOK_URL}/{TOKEN}")
+    application.bot.set_webhook(f"{WEBHOOK_URL}/{TOKEN}")
     app.run(host="0.0.0.0", port=PORT)
