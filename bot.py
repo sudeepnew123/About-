@@ -2,10 +2,9 @@ import os
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# Get environment variables
-TOKEN = os.environ.get("BOT_TOKEN")  # Set your BotFather token in Render env
+TOKEN = os.environ.get("BOT_TOKEN")
 PORT = int(os.environ.get("PORT", 8443))
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL")  # Your Render URL, e.g., https://about-mh6l.onrender.com
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL")  # e.g., https://your-render-domain.onrender.com
 
 IMAGE_URL = "https://i.ibb.co/G3nbpR0L/IMG-20250820-221800-029.webp"
 
@@ -65,11 +64,11 @@ def main():
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
 
-    # PTB v20.6 webhook runner
+    # ✅ Run webhook (PTB handles internal Updater, no manual Updater needed)
     app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
-        url_path=TOKEN,  # secret webhook path
+        url_path=TOKEN,
         webhook_url=f"{WEBHOOK_URL}/{TOKEN}",
         drop_pending_updates=True
     )
