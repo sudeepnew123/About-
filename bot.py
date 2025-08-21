@@ -4,41 +4,11 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 TOKEN = os.environ.get("BOT_TOKEN")
 PORT = int(os.environ.get("PORT", 8443))
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL")  # e.g., https://your-render-domain.onrender.com
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL")  # https://your-render-domain.onrender.com
 
 IMAGE_URL = "https://i.ibb.co/G3nbpR0L/IMG-20250820-221800-029.webp"
 
-CAPTION = """👉🍂🍃🌿  𝓐𝓫𝓸𝓾𝓽 𝓜𝓮  🌿🍃🍂
-<pre>
-╔══════════════╗
-  ❖ TG Name :-   𝐒𝐮𝐝𝐞𝐞𝐩 🚩
-  ❖ Username :-  @HeartStealer_X
-╚══════════════╝
-       ⧉ COPY CODE ⧉
-</pre>
-<pre>
-╔══════════════╗
- ❖ Real Name :-  Nhi Btana 🤭
-  ❖ Age :-  Nhi Btana
-</pre>
-<pre>
-❖ Class :-  11 th 🙂
-  ❖ From :-  Sabke Dil Mja
-  ❖ Religion :-  Kattar 🚩
-  ❖ Hobby :-  Anime – Gaming – 😂
-╚══════════════╝
-</pre>
-<pre>
-《════════════》
-      ❤️ Complete ❤️
-《════════════》
-</pre>
-<blockquote>
-ᯓ𓆰⌯ <i>Thank You for being
-a part of my journey ☗
-➤ Your support means the world</i>
-</blockquote>
-"""
+CAPTION = """..."""  # aapka caption yahan
 
 def get_inline_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
@@ -58,13 +28,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 def main():
-    if not TOKEN or not WEBHOOK_URL:
-        raise RuntimeError("Set BOT_TOKEN and WEBHOOK_URL env vars in Render!")
-
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
 
-    # ✅ Run webhook (PTB handles internal Updater, no manual Updater needed)
     app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
