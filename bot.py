@@ -1,11 +1,11 @@
 import os
-from flask import Flask, request
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = os.environ.get("BOT_TOKEN")
+# Get environment variables
+TOKEN = os.environ.get("BOT_TOKEN")  # Set your BotFather token in Render env
 PORT = int(os.environ.get("PORT", 8443))
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL")  # https://yourdomain.onrender.com
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL")  # Your Render URL, e.g., https://about-mh6l.onrender.com
 
 IMAGE_URL = "https://i.ibb.co/G3nbpR0L/IMG-20250820-221800-029.webp"
 
@@ -42,12 +42,11 @@ a part of my journey ☗
 """
 
 def get_inline_keyboard() -> InlineKeyboardMarkup:
-    keyboard = [
+    return InlineKeyboardMarkup([
         [InlineKeyboardButton("1. sᴜᴘᴘᴏʀᴛ🍂 👇", url="https://t.me/hehe_heeeeee")],
         [InlineKeyboardButton("2. ʙᴏᴛs🍁 👇", url="https://t.me/Music_promaxbot?start=_tgr_u2T_FTcxODI1")],
-        [InlineKeyboardButton("3. ᴍᴏʀᴇ☘️ 👇", url="t.me/hartsteeler")],
-    ]
-    return InlineKeyboardMarkup(keyboard)
+        [InlineKeyboardButton("3. ᴍᴏʀᴇ☘️ 👇", url="https://t.me/hartsteeler")],
+    ])
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_photo(
@@ -59,21 +58,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=get_inline_keyboard()
     )
 
-# Flask app
-app = Flask(__name__)
-application = ApplicationBuilder().token(TOKEN).build()
-application.add_handler(CommandHandler("start", start))
+def main():
+    if not TOKEN or not WEBHOOK_URL:
+        raise RuntimeError("Set BOT_TOKEN and WEBHOOK_URL env vars in Render!")
 
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), application.bot)
-    application.update_queue.put(update)
-    return "ok", 200
+    app = ApplicationBuilder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
 
-@app.route("/")
-def index():
-    return "Bot is running!", 200
+    # PTB v20.6 webhook runner
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=TOKEN,  # secret webhook path
+        webhook_url=f"{WEBHOOK_URL}/{TOKEN}",
+        drop_pending_updates=True
+    )
 
 if __name__ == "__main__":
-    application.bot.set_webhook(f"{WEBHOOK_URL}/{TOKEN}")
-    app.run(host="0.0.0.0", port=PORT)
+    main()
